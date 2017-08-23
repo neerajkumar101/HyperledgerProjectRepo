@@ -80,12 +80,24 @@ describe('Commodity Trading', () => {
             // the owner should of the commodity should be dan
             commodity.owner.$identifier.should.equal(dan.$identifier);
 
+            // create the second commodity
+            const commodity2 = factory.newResource(NS, 'Commodity', 'XYZ');
+            commodity2.description = 'Soya';
+            commodity2.mainExchange = 'Chicago';
+            commodity2.quantity = 50;
+            commodity2.owner = factory.newRelationship(NS, 'Trader', dan.$identifier);
+
+            // register for events from the business network
+            businessNetworkConnection.on('event', (event) => {
+                console.log( 'Received event: ' + event.getFullyQualifiedIdentifier() + ' for commodity ' + event.commodity.getIdentifier() );
+            });
+
             // Get the asset registry.
             return businessNetworkConnection.getAssetRegistry(NS + '.Commodity')
                 .then((assetRegistry) => {
 
-                    // add the commodity to the asset registry.
-                    return assetRegistry.add(commodity)
+                    // add the commodities to the asset registry.
+                    return assetRegistry.addAll([commodity,commodity2])
                         .then(() => {
                             return businessNetworkConnection.getParticipantRegistry(NS + '.Trader');
                         })
@@ -105,8 +117,40 @@ describe('Commodity Trading', () => {
                             return assetRegistry.get(commodity.$identifier);
                         })
                         .then((newCommodity) => {
-                            // the owner of the commodity should not be simon
+                            // the owner of the commodity should now be simon
                             newCommodity.owner.$identifier.should.equal(simon.$identifier);
+                        })
+                        .then(() => {
+                            // use a query
+                            return businessNetworkConnection.query('selectCommoditiesByExchange', {exchange : 'Euronext'});
+                        })
+                        .then((results) => {
+                            // check results
+                            results.length.should.equal(1);
+                            results[0].getIdentifier().should.equal('EMA');
+                        })
+                        .then(() => {
+                            // use another query
+                            return businessNetworkConnection.query('selectCommoditiesByOwner', {owner : 'resource:' + simon.getFullyQualifiedIdentifier()});
+                        })
+                        .then((results) => {
+                            //  check results
+                            results.length.should.equal(1);
+                            results[0].getIdentifier().should.equal('EMA');
+                        })
+                        .then(() => {
+                            // submit the remove transaction
+                            const remove = factory.newTransaction(NS, 'RemoveHighQuantityCommodities');
+                            return businessNetworkConnection.submitTransaction(remove);
+                        })
+                        .then(() => {
+                            // use a query
+                            return businessNetworkConnection.query('selectCommodities');
+                        })
+                        .then((results) => {
+                            // check results, should only have 1 commodity left
+                            results.length.should.equal(1);
+                            results[0].getIdentifier().should.equal('XYZ');
                         });
                 });
         });
