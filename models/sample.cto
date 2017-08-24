@@ -11,6 +11,14 @@ asset Commodity identified by tradingSymbol {
     --> Trader owner
 }
 
+asset MyAsset identified by MyRules {
+    o String MyRules
+    o String description
+    o String motoOfExchange
+    o Double quantity
+    --> Trader owner
+}
+
 participant Trader identified by tradeId {
     o String tradeId
     o String firstName
@@ -21,9 +29,17 @@ transaction Trade {
     --> Commodity commodity
     --> Trader newOwner
 }
+transaction TradeMyAsset {
+    --> MyAsset myAsset
+    --> Trader newOwner
+}
 
 event TradeNotification {
     --> Commodity commodity
+}
+
+event TradeMyAssetNotification {
+    --> MyAsset myAsset
 }
 
 transaction RemoveHighQuantityCommodities {
