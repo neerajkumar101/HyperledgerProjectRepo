@@ -45,6 +45,13 @@ event TradeMyAssetNotification {
 transaction RemoveHighQuantityCommodities {
 }
 
+transaction RemoveHighQuantityMyAssets {
+}
+
 event RemoveNotification {
     --> Commodity commodity
+}
+
+event RemoveNotificationMyAsset {
+    --> MyAsset myAsset
 }

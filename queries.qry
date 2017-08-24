@@ -27,3 +27,30 @@ query selectCommoditiesWithHighQuantity {
       SELECT org.acme.mynetwork.Commodity
           WHERE (quantity > 60)
 }
+
+query selectMyAssets {
+  description: "Select all myAssets"
+  statement:
+      SELECT org.acme.mynetwork.MyAsset
+}
+
+query selectMyAssetsByMotoOfExchange {
+  description: "Select all myAssets based on their motoOfExchange"
+  statement:
+      SELECT org.acme.mynetwork.MyAsset
+          WHERE (motoOfExchange==_$motoOfExchange)
+}
+
+query selectMyAssetsByOwner {
+  description: "Select all myAssets based on their owner"
+  statement:
+      SELECT org.acme.mynetwork.MyAsset
+          WHERE (owner == _$owner)
+}
+
+query selectMyAssetsWithHighQuantity {
+  description: "Select myAssets based on quantity"
+  statement:
+      SELECT org.acme.mynetwork.MyAsset
+          WHERE (quantity > 60)
+}
